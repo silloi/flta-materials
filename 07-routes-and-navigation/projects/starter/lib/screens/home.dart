@@ -1,11 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../models/models.dart';
 import 'explore_screen.dart';
 import 'grocery_screen.dart';
 import 'recipes_screen.dart';
 
 class Home extends StatefulWidget {
-  // TODO: Home MaterialPage Helper
+  static MaterialPage page(int currentTab) {
+    return MaterialPage(
+      name: FooderlichPages.home,
+      key: ValueKey(FooderlichPages.home),
+      child: Home(
+        currentTab: currentTab,
+      ),
+    );
+  }
 
   const Home({
     Key? key,
@@ -27,7 +37,9 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: Wrap Consumer for AppStateManager
+    return Consumer<AppStateManager>(
+        builder: (context, appStateManager, child) {
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -43,7 +55,8 @@ class _HomeState extends State<Home> {
         selectedItemColor: Theme.of(context).textSelectionTheme.selectionColor,
         currentIndex: widget.currentTab,
         onTap: (index) {
-          // TODO: Update user's selected tab
+         Provider.of<AppStateManager>(context, listen: false)
+             .goToTab(index);
         },
         items: <BottomNavigationBarItem>[
           const BottomNavigationBarItem(
@@ -61,7 +74,7 @@ class _HomeState extends State<Home> {
         ],
       ),
     );
-    // TODO: Add closing },);
+    },);
   }
 
   Widget profileButton() {
@@ -75,7 +88,8 @@ class _HomeState extends State<Home> {
           ),
         ),
         onTap: () {
-          // TODO: home -> profile
+          Provider.of<ProfileManager>(context, listen: false)
+              .tapOnProfile(true);
         },
       ),
     );
