@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
 import '../../data/models/recipe.dart';
-import '../../data/memory_repository.dart';
+import '../../data/repository.dart';
 
 class MyRecipesList extends StatefulWidget {
   const MyRecipesList({Key? key}) : super(key: key);
@@ -24,9 +24,13 @@ class _MyRecipesListState extends State<MyRecipesList> {
   }
 
   Widget _buildRecipeList(BuildContext context) {
-    return Consumer<MemoryRepository>(builder: (context, repository, child) {
-      recipes = repository.findAllRecipes();
-      return ListView.builder(
+    final repository = Provider.of<Repository>(context, listen: false);
+    return StreamBuilder<List<Recipe>>(
+      stream: repository.watchAllRecipes(),
+      builder: (context, AsyncSnapshot<List<Recipe>> snapshot) {
+        if (snapshot.connectionState == ConnectionState.active) {
+          final recipes = snapshot.data ?? [];
+          return ListView.builder(
           itemCount: recipes.length,
           itemBuilder: (BuildContext context, int index) {
             final recipe = recipes[index];
@@ -75,11 +79,13 @@ class _MyRecipesListState extends State<MyRecipesList> {
               ),
             );
           },);
-    // TODO: Add else here
+      } else {
+          return Container();
+        }
     },);
   }
 
-  void deleteRecipe(MemoryRepository repository, Recipe recipe) async {
+  void deleteRecipe(Repository repository, Recipe recipe) async {
     if (recipe.id != null) {
       repository.deleteRecipeIngredients(recipe.id!);
       repository.deleteRecipe(recipe);
